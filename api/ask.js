@@ -150,6 +150,13 @@ async function generateAnswer({ message, history }) {
 // =============================================================
 
 export default async function handler(req, res) {
+
+  // 🔐 Sécurité : vérification du token
+  const clientToken = req.headers["x-auth-token"];
+  if (!clientToken || clientToken !== process.env.AUTH_TOKEN) {
+    return safeJson(res, 401, { error: "Accès non autorisé." });
+  }
+
   if (req.method !== "POST") {
     return safeJson(res, 405, { error: "Méthode non autorisée." });
   }
@@ -174,4 +181,3 @@ export default async function handler(req, res) {
     return safeJson(res, 500, { success: false, error: "Erreur interne." });
   }
 }
-
