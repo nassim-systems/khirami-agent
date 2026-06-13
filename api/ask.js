@@ -1,5 +1,5 @@
 // =============================================================
-//  Agent IA Premium — Version Ultimate Simple
+//  Agent IA Premium — Version Ultimate Simple (Multi‑Client)
 //  Hybrid Claude + OpenAI (fallback)
 //  Optimisé pour Vercel (serverless friendly)
 // =============================================================
@@ -23,17 +23,28 @@ function cleanText(text) {
   return text.toString().trim();
 }
 
-function buildSystemPrompt() {
+// 🔥 SYSTEM PROMPT PREMIUM — VERSION 2000€
+function buildSystemPrompt(context) {
   return `
-Tu es l’agent IA premium de Nassim.
-Tu t’adaptes automatiquement à la langue de l’utilisateur.
-Si l’utilisateur parle français, tu réponds en français.
-S’il parle anglais, tu réponds en anglais.
-Tu ne changes jamais de langue sauf si l’utilisateur change lui-même.
-Tu es clair, structuré, professionnel et orienté action.
-Tu expliques comme à quelqu’un d’intelligent mais pressé.
-Pas de blabla inutile.
-Si tu ne sais pas, tu le dis clairement.
+You are Nassim’s premium AI agent.
+
+Your mission:
+- Deliver clear, structured, actionable answers.
+- Adapt instantly to the user's language (French or English).
+- Maintain a professional, concise, high‑level consultant tone.
+- No unnecessary filler. No rambling. No generic fluff.
+- If information is missing, ask for it briefly.
+- If you don’t know something, say it transparently.
+- Always prioritize clarity, precision, and efficiency.
+- You behave like a senior expert who explains to someone intelligent but busy.
+
+Rules:
+- Never switch languages unless the user switches first.
+- Never invent facts. Never hallucinate.
+- Keep answers focused, helpful, and directly useful.
+
+CLIENT CONTEXT (dynamic):
+${context || "No client context provided."}
 `;
 }
 
@@ -72,13 +83,13 @@ async function fetchWithTimeout(url, options) {
 //  Providers
 // =============================================================
 
-async function callClaude(message, history) {
-  if (!CONFIG.anthropicApiKey) throw new Error("Clé API Claude manquante.");
+async function callClaude(message, history, context) {
+  if (!CONFIG.anthropicApiKey) throw new Error("Missing Claude API key.");
 
   const body = {
     model: CONFIG.modelClaude,
     max_tokens: CONFIG.maxTokens,
-    system: buildSystemPrompt(),
+    system: buildSystemPrompt(context),
     messages: [...history, { role: "user", content: cleanText(message) }],
   };
 
@@ -98,14 +109,14 @@ async function callClaude(message, history) {
   return cleanText(data?.content?.[0]?.text || "");
 }
 
-async function callOpenAI(message, history) {
-  if (!CONFIG.openaiApiKey) throw new Error("Clé API OpenAI manquante.");
+async function callOpenAI(message, history, context) {
+  if (!CONFIG.openaiApiKey) throw new Error("Missing OpenAI API key.");
 
   const body = {
     model: CONFIG.modelOpenAI,
     max_completion_tokens: CONFIG.maxTokens,
     messages: [
-      { role: "system", content: buildSystemPrompt() },
+      { role: "system", content: buildSystemPrompt(context) },
       ...history,
       { role: "user", content: cleanText(message) },
     ],
@@ -133,15 +144,18 @@ async function callOpenAI(message, history) {
 //  Orchestration
 // =============================================================
 
-async function generateAnswer({ message, history }) {
-  if (CONFIG.provider === "claude") return callClaude(message, history);
-  if (CONFIG.provider === "openai") return callOpenAI(message, history);
+async function generateAnswer({ message, history, context }) {
+  if (CONFIG.provider === "claude")
+    return callClaude(message, history, context);
+
+  if (CONFIG.provider === "openai")
+    return callOpenAI(message, history, context);
 
   // HYBRID
   try {
-    return await callClaude(message, history);
+    return await callClaude(message, history, context);
   } catch {
-    return await callOpenAI(message, history);
+    return await callOpenAI(message, history, context);
   }
 }
 
@@ -151,21 +165,23 @@ async function generateAnswer({ message, history }) {
 
 export default async function handler(req, res) {
 
-  // 🔐 Sécurité : vérification du token
+  // 🔐 Security: token verification
   const clientToken = req.headers["x-auth-token"];
   if (!clientToken || clientToken !== process.env.AUTH_TOKEN) {
-    return safeJson(res, 401, { error: "Accès non autorisé." });
+    return safeJson(res, 401, { 
+      error: "Unauthorized access. Missing or invalid authentication token." 
+    });
   }
 
   if (req.method !== "POST") {
-    return safeJson(res, 405, { error: "Méthode non autorisée." });
+    return safeJson(res, 405, { error: "Method not allowed." });
   }
 
   try {
-    const { message, history } = req.body || {};
+    const { message, history, context } = req.body || {};
 
     if (!message || typeof message !== "string") {
-      return safeJson(res, 400, { error: "Le champ 'message' est requis." });
+      return safeJson(res, 400, { error: "The 'message' field is required." });
     }
 
     const safeHistory = sanitizeHistory(history);
@@ -173,11 +189,12 @@ export default async function handler(req, res) {
     const reply = await generateAnswer({
       message,
       history: safeHistory,
+      context: cleanText(context),
     });
 
     return safeJson(res, 200, { success: true, reply });
   } catch (err) {
     console.error("Erreur /api/ask :", err);
-    return safeJson(res, 500, { success: false, error: "Erreur interne." });
+    return safeJson(res, 500, { success: false, error: "Internal server error." });
   }
 }
