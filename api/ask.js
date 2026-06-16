@@ -1,8 +1,15 @@
 // =============================================================
-//  Agent IA Premium — Option C (Ultimate Premium)
-//  Multi‑Client + Business Intelligence + Context Interpreter
-//  Optimisé pour Claude Opus 4.8 + OpenAI fallback
-//  Version Pro + Humain (Signature Nassim)
+//  Agent IA Premium — Version Consultant Expert Ultime
+//  Multi‑Client • Multi‑IA • Logs • Sécurité • Scalabilité
+//  Core backend universel (Nassim)
+// =============================================================
+
+import { safeJson } from "./utils/safeJson.js";
+import { sanitizeHistory } from "./utils/sanitize.js";
+import { callClaude, callOpenAI } from "./utils/ai.js";
+
+// =============================================================
+//  Config
 // =============================================================
 
 const CONFIG = {
@@ -10,10 +17,7 @@ const CONFIG = {
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
   openaiApiKey: process.env.OPENAI_API_KEY,
 
-  // 🔥 Claude Opus 4.8 (modèle premium)
   modelClaude: "claude-3-opus-20240229",
-
-  // Fallback OpenAI
   modelOpenAI: "gpt-4.1-mini",
 
   maxTokens: 800,
@@ -29,14 +33,9 @@ function cleanText(text) {
   return text.toString().trim();
 }
 
-// =============================================================
-//  SYSTEM PROMPT — OPTION C (ULTIMATE PREMIUM)
-//  Consultant Senior + Humain + Business Intelligence
-// =============================================================
-
 function buildSystemPrompt(context) {
   return `
-You are Nassim’s Premium AI Agent — Option C (Ultimate Edition).
+You are Nassim’s Premium AI Agent — Consultant Expert Ultimate.
 
 Your identity:
 - You speak with the clarity of a senior consultant and the warmth of a human expert.
@@ -78,27 +77,6 @@ ${context || "No client context provided."}
 `;
 }
 
-function safeJson(res, status, payload) {
-  return res.status(status).json(payload);
-}
-
-function sanitizeHistory(history) {
-  if (!Array.isArray(history)) return [];
-  return history
-    .filter(
-      (h) =>
-        h &&
-        typeof h === "object" &&
-        ["user", "assistant"].includes(h.role) &&
-        typeof h.content === "string"
-    )
-    .map((h) => ({
-      role: h.role,
-      content: cleanText(h.content).slice(0, 4000),
-    }))
-    .slice(-10);
-}
-
 async function fetchWithTimeout(url, options) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), CONFIG.timeoutMs);
@@ -110,82 +88,28 @@ async function fetchWithTimeout(url, options) {
 }
 
 // =============================================================
-//  Providers
-// =============================================================
-
-async function callClaude(message, history, context) {
-  if (!CONFIG.anthropicApiKey) throw new Error("Missing Claude API key.");
-
-  const body = {
-    model: CONFIG.modelClaude,
-    max_tokens: CONFIG.maxTokens,
-    system: buildSystemPrompt(context),
-    messages: [...history, { role: "user", content: cleanText(message) }],
-  };
-
-  const res = await fetchWithTimeout("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": CONFIG.anthropicApiKey,
-      "content-type": "application/json",
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) throw new Error(`Claude error ${res.status}`);
-
-  const data = await res.json();
-  return cleanText(data?.content?.[0]?.text || "");
-}
-
-async function callOpenAI(message, history, context) {
-  if (!CONFIG.openaiApiKey) throw new Error("Missing OpenAI API key.");
-
-  const body = {
-    model: CONFIG.modelOpenAI,
-    max_completion_tokens: CONFIG.maxTokens,
-    messages: [
-      { role: "system", content: buildSystemPrompt(context) },
-      ...history,
-      { role: "user", content: cleanText(message) },
-    ],
-  };
-
-  const res = await fetchWithTimeout(
-    "https://api.openai.com/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${CONFIG.openaiApiKey}`,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(body),
-    }
-  );
-
-  if (!res.ok) throw new Error(`OpenAI error ${res.status}`);
-
-  const data = await res.json();
-  return cleanText(data?.choices?.[0]?.message?.content || "");
-}
-
-// =============================================================
 //  Orchestration
 // =============================================================
 
 async function generateAnswer({ message, history, context }) {
-  if (CONFIG.provider === "claude")
-    return callClaude(message, history, context);
+  const safeMessage = cleanText(message);
+  const safeContext = cleanText(context);
+  const safeHistory = sanitizeHistory(history);
 
-  if (CONFIG.provider === "openai")
-    return callOpenAI(message, history, context);
+  if (CONFIG.provider === "claude") {
+    return await callClaude(safeMessage, safeHistory, safeContext, CONFIG, buildSystemPrompt, fetchWithTimeout);
+  }
 
-  // HYBRID
+  if (CONFIG.provider === "openai") {
+    return await callOpenAI(safeMessage, safeHistory, safeContext, CONFIG, buildSystemPrompt, fetchWithTimeout);
+  }
+
+  // HYBRID avec fallback intelligent
   try {
-    return await callClaude(message, history, context);
-  } catch {
-    return await callOpenAI(message, history, context);
+    return await callClaude(safeMessage, safeHistory, safeContext, CONFIG, buildSystemPrompt, fetchWithTimeout);
+  } catch (err) {
+    console.error("[HYBRID] Claude failed, falling back to OpenAI:", err?.message || err);
+    return await callOpenAI(safeMessage, safeHistory, safeContext, CONFIG, buildSystemPrompt, fetchWithTimeout);
   }
 }
 
@@ -194,38 +118,56 @@ async function generateAnswer({ message, history, context }) {
 // =============================================================
 
 export default async function handler(req, res) {
+  const requestId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
   // 🔐 Security: token verification
   const clientToken = req.headers["x-auth-token"];
   if (!clientToken || clientToken !== process.env.AUTH_TOKEN) {
-    return safeJson(res, 401, { 
-      error: "Unauthorized access. Missing or invalid authentication token." 
+    return safeJson(res, 401, {
+      status: 401,
+      requestId,
+      error: "Unauthorized access. Missing or invalid authentication token.",
     });
   }
 
   if (req.method !== "POST") {
-    return safeJson(res, 405, { error: "Method not allowed." });
+    return safeJson(res, 405, {
+      status: 405,
+      requestId,
+      error: "Method not allowed.",
+    });
   }
 
   try {
     const { message, history, context } = req.body || {};
 
     if (!message || typeof message !== "string") {
-      return safeJson(res, 400, { error: "The 'message' field is required." });
+      return safeJson(res, 400, {
+        status: 400,
+        requestId,
+        error: "The 'message' field is required.",
+      });
     }
-
-    const safeHistory = sanitizeHistory(history);
 
     const reply = await generateAnswer({
       message,
-      history: safeHistory,
-      context: cleanText(context),
+      history,
+      context,
     });
 
-    return safeJson(res, 200, { success: true, reply });
+    return safeJson(res, 200, {
+      status: 200,
+      requestId,
+      success: true,
+      reply,
+    });
   } catch (err) {
-    console.error("Erreur /api/ask :", err);
-    return safeJson(res, 500, { success: false, error: "Internal server error." });
+    console.error(`[ERROR][requestId=${requestId}] /api/ask:`, err);
+    return safeJson(res, 500, {
+      status: 500,
+      requestId,
+      success: false,
+      error: "Internal server error.",
+    });
   }
 }
-
