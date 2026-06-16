@@ -1,0 +1,15 @@
+{
+  "name": "agent-premium-nassim",
+  "version": "2.0.0",
+  "description": "Backend premium pour agent IA avancé (OpenAI + Claude) — optimisé par Nassim.",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "node api/ask.js"
+  },
+  "dependencies": {
+    "openai": "^4.0.0",
+    "node-fetch": "^3.3.2",
+    "uuid": "^9.0.1"
+  }
+}
