@@ -97,19 +97,47 @@ async function generateAnswer({ message, history, context }) {
   const safeHistory = sanitizeHistory(history);
 
   if (CONFIG.provider === "claude") {
-    return await callClaude(safeMessage, safeHistory, safeContext, CONFIG, buildSystemPrompt, fetchWithTimeout);
+    return await callClaude(
+      safeMessage,
+      safeHistory,
+      safeContext,
+      CONFIG,
+      buildSystemPrompt,
+      fetchWithTimeout
+    );
   }
 
   if (CONFIG.provider === "openai") {
-    return await callOpenAI(safeMessage, safeHistory, safeContext, CONFIG, buildSystemPrompt, fetchWithTimeout);
+    return await callOpenAI(
+      safeMessage,
+      safeHistory,
+      safeContext,
+      CONFIG,
+      buildSystemPrompt,
+      fetchWithTimeout
+    );
   }
 
   // HYBRID avec fallback intelligent
   try {
-    return await callClaude(safeMessage, safeHistory, safeContext, CONFIG, buildSystemPrompt, fetchWithTimeout);
+    return await callClaude(
+      safeMessage,
+      safeHistory,
+      safeContext,
+      CONFIG,
+      buildSystemPrompt,
+      fetchWithTimeout
+    );
   } catch (err) {
     console.error("[HYBRID] Claude failed, falling back to OpenAI:", err?.message || err);
-    return await callOpenAI(safeMessage, safeHistory, safeContext, CONFIG, buildSystemPrompt, fetchWithTimeout);
+    return await callOpenAI(
+      safeMessage,
+      safeHistory,
+      safeContext,
+      CONFIG,
+      buildSystemPrompt,
+      fetchWithTimeout
+    );
   }
 }
 
@@ -120,9 +148,19 @@ async function generateAnswer({ message, history, context }) {
 export default async function handler(req, res) {
   const requestId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
+  // --- CORS FIX (OBLIGATOIRE POUR TON WIDGET) ---
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-auth-token");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  // ------------------------------------------------
+
   // 🔐 Security: token verification
   const clientToken = req.headers["x-auth-token"];
-  if (!clientToken || clientToken !== process.env.AUTH_TOKEN) {
+  if (!clientToken || clientToken !== process.env.PRIVATE_AUTH_TOKEN) {
     return safeJson(res, 401, {
       status: 401,
       requestId,
