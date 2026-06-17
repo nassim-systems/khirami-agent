@@ -148,7 +148,9 @@ async function generateAnswer({ message, history, context }) {
 export default async function handler(req, res) {
   const requestId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-  // --- CORS FIX (OBLIGATOIRE POUR TON WIDGET) ---
+  // =============================================================
+  //  🔥 CORS FIX — OBLIGATOIRE POUR TON WIDGET LOCAL
+  // =============================================================
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-auth-token");
@@ -156,7 +158,7 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
-  // ------------------------------------------------
+  // =============================================================
 
   // 🔐 Security: token verification
   const clientToken = req.headers["x-auth-token"];
