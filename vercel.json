@@ -1,10 +1,5 @@
 {
   "version": 2,
-  "env": {
-    "PRIVATE_AUTH_TOKEN": "@private_auth_token",
-    "OPENAI_API_KEY": "@openai_api_key",
-    "CLAUDE_API_KEY": "@claude_api_key"
-  },
   "functions": {
     "api/ask.js": {
       "runtime": "nodejs18.x"
@@ -13,13 +8,7 @@
   "routes": [
     {
       "src": "/api/ask",
-      "dest": "/api/ask.js",
-      "methods": ["GET", "POST", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-        "Access-Control-Allow-Headers": "*"
-      }
+      "dest": "/api/ask.js"
     }
   ]
 }
