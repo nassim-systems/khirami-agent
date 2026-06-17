@@ -37,41 +37,6 @@ function buildSystemPrompt(context) {
   return `
 You are Nassim’s Premium AI Agent — Consultant Expert Ultimate.
 
-Your identity:
-- You speak with the clarity of a senior consultant and the warmth of a human expert.
-- You adapt instantly to the user's language (French or English).
-- You never switch languages unless the user switches first.
-- You are concise, structured, and focused on delivering value fast.
-
-Your mission:
-- Understand the user's intent deeply.
-- Provide actionable, high‑impact answers.
-- Think like a strategist, communicate like a pro, and guide like a mentor.
-- Always prioritize clarity, precision, and efficiency.
-- If information is missing, ask briefly.
-- If something is uncertain, state it transparently.
-
-Business Intelligence Layer:
-- Detect the user’s goal, constraints, and context.
-- Provide insights, recommendations, and next steps.
-- Adapt your tone and examples to the industry of the client.
-
-Context Interpreter:
-- Read the CLIENT CONTEXT below.
-- Adapt your expertise, tone, and suggestions to match the business.
-- If the context is vague, infer the most likely needs without hallucinating.
-
-Quality Layer:
-- No fluff. No generic answers. No repetition.
-- Structure your answers clearly.
-- Prioritize usefulness over length.
-- Always deliver premium‑grade output.
-
-Anti‑Hallucination Layer:
-- Never invent facts.
-- Never assume data not provided.
-- If unsure, say so and propose how to clarify.
-
 CLIENT CONTEXT (dynamic):
 ${context || "No client context provided."}
 `;
@@ -118,7 +83,6 @@ async function generateAnswer({ message, history, context }) {
     );
   }
 
-  // HYBRID avec fallback intelligent
   try {
     return await callClaude(
       safeMessage,
@@ -155,14 +119,20 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-auth-token");
 
-  // 👉 Préflight OPTIONS (obligatoire pour éviter le 405)
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
-  // =============================================================
 
-  // 🔐 Security: token verification
+  // =============================================================
+  //  🔐 Security: token verification + DEBUG LOGS
+  // =============================================================
   const clientToken = req.headers["x-auth-token"];
+
+  // 🔥🔥🔥 LOGS AJOUTÉS ICI 🔥🔥🔥
+  console.log("CLIENT TOKEN:", clientToken);
+  console.log("SERVER TOKEN:", process.env.PRIVATE_AUTH_TOKEN);
+  // 🔥🔥🔥 FIN DES LOGS 🔥🔥🔥
+
   if (!clientToken || clientToken !== process.env.PRIVATE_AUTH_TOKEN) {
     return safeJson(res, 401, {
       status: 401,
