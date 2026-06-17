@@ -7,7 +7,7 @@ async function send() {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-auth-token": "NX-UltimateAgent-2026_Z9FA7!"
+      "x-auth-token": "NX-UltimateAgent-2026_Z9fA7!"
     },
     body: JSON.stringify({
       message,
