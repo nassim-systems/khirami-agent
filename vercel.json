@@ -1,4 +1,4 @@
-{
+{{
   "version": 2,
   "env": {
     "AUTH_TOKEN": "@auth_token",
@@ -10,7 +10,19 @@
     { "src": "public/widget.js", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/ask", "dest": "/api/ask.js" },
-    { "src": "/(.*)", "dest": "/public/$1" }
+    {
+      "src": "/api/ask",
+      "dest": "/api/ask.js",
+      "methods": ["GET", "POST", "OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+        "Access-Control-Allow-Headers": "*"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
+    }
   ]
 }
