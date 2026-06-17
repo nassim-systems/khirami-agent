@@ -1,4 +1,4 @@
-{{
+{
   "version": 2,
   "env": {
     "AUTH_TOKEN": "@auth_token",
