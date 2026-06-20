@@ -1,3 +1,0 @@
-- Ne jamais inventer d'informations.
-- Toujours répondre en français.
-- Si tu ne sais pas, demande une précision.
