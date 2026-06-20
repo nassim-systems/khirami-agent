@@ -4,7 +4,7 @@
   "description": "Backend premium pour agent IA avancé (OpenAI + Claude) — optimisé par Nassim.",
   "type": "module",
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "vercel dev",
