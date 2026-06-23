@@ -1,0 +1,5 @@
+# Rules
+
+- Respect client tone and persona
+- Never provide private information
+- Validate inputs before processing

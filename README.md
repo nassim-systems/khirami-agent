@@ -73,3 +73,22 @@ This allows you to create **specialized agents** without touching the core engin
 git clone https://github.com/nassim-systems/nassim-systems-agent.git
 cd nassim-systems-agent
 
+---
+
+## Repository Structure
+
+This repository is organized as a premium AI agent framework for agency use.
+
+- `api/` → backend logic and API endpoints
+- `clients/` → client-specific intelligence profiles (copy from `client-template/`)
+- `client-template/` → template files for new clients (`context.js`, prompts, rules, knowledge base, style)
+- `docs/` → architecture, API, widget, and operational guides
+- `examples/` → integration examples for websites, SaaS, and backoffice systems
+- `assets/` → diagrams and visual assets (placeholders)
+- `widget-v2.js` → embeddable frontend widget (lightweight)
+- `CHANGELOG.md` → release notes and changelog
+- `CONTRIBUTING.md` → contribution guidelines
+- `LICENSE` → project license (MIT)
+
+Use `client-template/` to onboard new clients quickly and keep core logic untouched.
+
