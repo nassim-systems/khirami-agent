@@ -1,147 +1,75 @@
-# 🚀 Premium AI Automation Agent — Enterprise‑Grade Architecture & Hybrid Intelligence
 
-This repository showcases **Nassim’s Premium AI Automation Agent**, engineered with the standards, clarity, and reliability expected from a **senior AI consultant** working with founders, SaaS teams, and high‑growth businesses.
+# Nassim Systems Agent — AI Agent Framework for High‑End Integrations
 
-The system is built on **Vercel Edge Runtime** for ultra‑low latency, global scalability, and instant cold starts.  
-It leverages a **hybrid intelligence engine** combining **Claude 3 Opus** (primary reasoning) and **GPT‑4.1‑mini** (fallback), orchestrated through a clean, secure, and predictable API layer.
-
-This agent is not a “chatbot”.  
-It is a **consultant‑grade reasoning engine** designed to deliver structured, actionable, high‑impact answers.
+A professional-grade AI agent framework engineered for consultants, automation experts, and companies seeking premium, scalable, and customizable intelligence systems.  
+This repository provides a clean, modular, production-ready foundation for building and deploying specialized AI agents for clients.
 
 ---
 
-## 🧠 Core Value Proposition
-This agent is designed to behave like a **senior consultant**:
+## 🧭 Strategic Vision
 
-- Understands context deeply  
-- Communicates with clarity and structure  
-- Produces high‑impact, business‑oriented insights  
-- Adapts instantly to French or English  
-- Never hallucinates silently — it warns and proposes clarification  
-- Maintains a premium, calm, expert tone  
+Nassim Systems Agent is designed with a consultant mindset:
 
-It is built for **real operational use**, not demos.
+- modular architecture  
+- client‑specific customization  
+- clean separation of concerns  
+- predictable behavior through rules & knowledge bases  
+- deployable instantly on any website or SaaS  
+- scalable for multiple clients without rewriting core logic  
 
----
-
-## 🏗️ Architecture Overview
-**Runtime:** Vercel Edge (Web APIs, no Node dependency)  
-**Models:**  
-- **Claude 3 Opus** — strategic reasoning, deep analysis  
-- **GPT‑4.1‑mini** — fast fallback for resilience  
-
-**Key Components:**  
-- Hybrid AI orchestration  
-- Intelligent fallback logic  
-- Structured JSON logging  
-- Context sanitization  
-- History trimming  
-- Secure private token authentication  
-- CORS‑safe API gateway  
-- Error‑safe execution flow  
-
-This architecture ensures **speed, reliability, and predictable output**.
+This framework is built to **sell**, **deploy**, and **maintain** AI agents at a professional level.
 
 ---
 
-## 📦 Project Structure
-```
-/api
-  └── ask.js        # Main Edge Runtime handler (premium agent logic)
-package.json        # Dependencies + scripts
-vercel.json         # Routing configuration
-```
+## 🧱 Core Architecture
+
+The system is structured around three pillars:
+
+### 1. Backend Intelligence (Vercel /api/ask)
+- receives: message, history, context, rules, knowledge base  
+- applies deterministic business logic  
+- ensures controlled, consistent responses  
+- returns a clean JSON payload for the widget  
+
+### 2. Frontend Widget (widget-v2.js)
+- lightweight, embeddable chat widget  
+- handles UI state (sending, waiting, errors)  
+- loads client-specific files:  
+  - prompt_system.txt  
+  - rules.txt  
+  - knowledge_base.txt  
+  - style.txt  
+- sends a complete, structured payload to the backend  
+
+### 3. Client Context Layer (clients/)
+Each client has its own intelligence profile:
+
+- context.js  
+- rules.txt  
+- knowledge_base.txt  
+- prompt_system.txt  
+- style.txt  
+
+This allows you to create **specialized agents** without touching the core engine.
 
 ---
 
-## 🔧 How the Agent Works
-1. Receives:
-   - message  
-   - optional history  
-   - optional business context  
-   - private auth token  
+## 📂 Project Structure
 
-2. Cleans + validates input  
-3. Builds a **consultant‑grade system prompt**  
-4. Calls Claude (primary)  
-5. Falls back to OpenAI if needed  
-6. Logs everything in structured JSON  
-7. Returns a clean, predictable JSON response  
-
-This ensures **consistency**, **traceability**, and **premium‑grade output**.
+- `api/` → backend logic  
+- `clients/` → client-specific intelligence modules  
+- `widget-v2.js` → embeddable chat widget  
+- `docs/` → technical documentation  
+- `README.md` → main documentation  
+- `package.json` → dependencies  
+- `vercel.json` → deployment config  
 
 ---
 
-## 🔐 Security & Reliability
-- Private token required (`x-auth-token`)  
-- No execution without valid credentials  
-- Sanitized history  
-- Strict error handling  
-- No uncontrolled model output  
-- Fully compatible with Edge Runtime constraints  
+## ⚙️ Installation & Deployment
 
----
-
-## 🛠️ Local Development
-```
-npm install
-npm run dev
-```
-
-Create a `.env` file:
-
-```
-OPENAI_API_KEY=your_key
-ANTHROPIC_API_KEY=your_key
-PRIVATE_AUTH_TOKEN=your_private_token
-AI_PROVIDER=hybrid
-```
-
----
-
-## 🌍 Deployment on Vercel
-This project is optimized for **Vercel Edge Runtime**.
-
-Your routing config:
-
-```json
-{
-  "version": 2,
-  "routes": [
-    { "src": "/api/ask", "dest": "/api/ask.js" }
-  ]
-}
-```
-
-No Node version is required — the agent runs fully on **Edge Runtime**.
-
----
-
-## 🧪 Example Request
+### 1. Clone the repository
 ```bash
-curl -X POST https://your-domain.vercel.app/api/ask \
-  -H "Content-Type: application/json" \
-  -H "x-auth-token: YOUR_PRIVATE_TOKEN" \
-  -d '{
-    "message": "How can I optimize my operations?",
-    "context": "Small SaaS team",
-    "history": []
-  }'
-```
+git clone https://github.com/nassim-systems/nassim-systems-agent.git
+cd nassim-systems-agent
 
----
-
-## 👤 About Nassim — AI Automation Consultant
-Nassim builds **practical, reliable, and business‑focused AI systems** for founders, SaaS teams, e‑commerce brands, and agencies.
-
-His work combines:
-
-- strategic thinking  
-- clean architecture  
-- operational impact  
-- premium communication  
-- automation expertise  
-
-This agent is part of his **consultant‑grade automation toolkit**, used to help clients remove repetitive work, scale operations, and unlock new capabilities through AI.
-
----
