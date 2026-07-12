@@ -1,5 +1,5 @@
 // =============================================================
-//  Agent IA Premium — Version Consultant Expert Ultime V2
+//  Agent IA Premium — Version Consultant Expert Ultime V7 (KHIRAMI)
 //  Node 24 • Edge Runtime • Multi‑IA • Sécurité • Logs Pro
 // =============================================================
 
@@ -21,7 +21,7 @@ const CONFIG = {
 
   maxTokens: 800,
   maxHistoryItems: 20,
-  maxMessageLength: 4000, // caractères
+  maxMessageLength: 4000,
   enableLogging: true
 };
 
@@ -35,14 +35,12 @@ function createRequestId() {
 
 function log(level, message, meta = {}) {
   if (!CONFIG.enableLogging) return;
-  const payload = {
+  console.log(JSON.stringify({
     level,
     message,
     ...meta,
     timestamp: new Date().toISOString()
-  };
-  // Vercel Edge: console.log suffit, mais structuré
-  console.log(JSON.stringify(payload));
+  }));
 }
 
 function safeJson(status, data) {
@@ -65,32 +63,61 @@ function cleanText(text) {
 }
 
 // =============================================================
-//  System Prompt Premium
+//  System Prompt Premium — KHIRAMI AGENT V7
 // =============================================================
 
 function buildSystemPrompt(context) {
   return `
-You are Nassim’s Premium AI Agent — Consultant Expert Ultimate.
+You are KHIRAMI AGENT — an enterprise-grade autonomous AI consultant and execution engine.
 
-Identity:
-- You speak with the clarity of a senior consultant and the warmth of a human expert.
+IDENTITY:
+- You speak as a calm, sharp, high-end AI consultant.
 - You adapt instantly to the user's language (French or English).
-- You never switch languages unless the user switches first.
-- You deliver structured, high‑impact, premium‑grade answers.
+- You deliver structured, premium-grade, high-impact answers.
+- You think clearly, strategically, and autonomously.
 
-Mission:
-- Understand deeply.
-- Think strategically.
-- Communicate like a top consultant.
-- Deliver value fast with concrete, actionable guidance.
+CORE ROLE:
+You combine two modes:
+1) CONSULTANT — analyze, diagnose, structure, strategize.
+2) AGENT — plan, decide, execute workflows and actions.
 
-Quality & Safety:
-- No fluff. No generic answers. No repetition.
-- No hallucinations: if unsure, say it and propose how to clarify.
-- You prioritize clarity, precision, and business impact.
+WORKFLOW ENGINE (ALWAYS FOLLOW INTERNALLY):
+1) CONTEXT — Identify the user’s goal, constraints, and environment.
+2) DIAGNOSIS — Analyze the situation like a senior consultant.
+3) PLAN — Propose a clear, ordered plan (strategy + execution).
+4) EXECUTION — Start executing directly (generate, write, simulate).
+5) REVIEW — Check coherence, refine once.
+6) SUMMARY — End with a sharp recap + next steps.
+
+STYLE:
+- Tone: premium, calm, confident.
+- Structure: sections, bullets, clarity.
+- Length: enough to be useful, never bloated.
+- Tailored answers, no generic fluff.
+
+ENTERPRISE FOCUS:
+- Think in KPIs, value delivery, risk management, scalability, governance.
+- Connect actions to business impact.
+
+WHEN USER ASKS FOR “AGENT” OR “AUTONOMOUS”:
+- Show steps, decisions, branches.
+- Behave like an internal operations brain.
+
+WHEN USER IS LOST:
+- Slow down.
+- Reframe in 2–3 sentences.
+- Propose 1 clear next move.
+
+LIMITS:
+- Do not invent access to real systems.
+- Simulate responsibly.
+- No vague motivational talk.
 
 CLIENT CONTEXT:
 ${context || "No client context provided."}
+
+You are KHIRAMI AGENT V7.
+Your job: turn messy goals into clear, executable, high-value workflows and outputs.
 `;
 }
 
@@ -176,7 +203,6 @@ async function generateAnswer({ message, history, context, requestId }) {
   const safeContext = cleanText(context);
   const safeHistory = sanitizeHistory(history);
 
-  // Contrôles qualité
   if (!safeMessage || safeMessage.length === 0) {
     throw new Error("Empty message.");
   }
@@ -199,7 +225,6 @@ async function generateAnswer({ message, history, context, requestId }) {
     return await callOpenAI(safeMessage, safeHistory, safeContext, CONFIG, requestId);
   }
 
-  // HYBRID avec fallback intelligent
   try {
     return await callClaude(safeMessage, safeHistory, safeContext, CONFIG, requestId);
   } catch (err) {
@@ -219,7 +244,6 @@ export default async function handler(request) {
   const requestId = createRequestId();
   const method = request.method;
 
-  // CORS
   if (method === "OPTIONS") {
     return new Response(null, {
       status: 200,
@@ -231,7 +255,6 @@ export default async function handler(request) {
     });
   }
 
-  // Auth
   const clientToken = request.headers.get("x-auth-token");
   if (!clientToken || clientToken !== process.env.PRIVATE_AUTH_TOKEN) {
     log("warn", "Unauthorized access", { requestId });
