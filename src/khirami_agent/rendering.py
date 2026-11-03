@@ -56,7 +56,7 @@ SECTION_LABELS: Mapping[str, str] = {
     "key_message": "Key message",
     "supporting_points": "Supporting points",
     "trade_offs": "Trade-offs",
-    "set_aside": "Deliberately set aside",
+    "set_aside": "Deliberately left out",
     "objective": "Objective",
     "sequencing": "Sequencing",
     "milestones": "Milestones",
@@ -77,22 +77,22 @@ SECTION_LABELS: Mapping[str, str] = {
     "blockers": "Blockers and watch points",
     "owners": "Owners",
     "answer": "Answer",
-    "support": "What it rests on",
+    "support": "Basis",
     "items": "Items",
     "columns": "Comparison axes",
     "rows": "Items compared",
     "artifact": "Artifact",
     "structure_notes": "Structure notes",
     "sources": "Sources",
-    "reservations": "Reservations",
+    "reservations": "Caveats",
     "non_compliance_finding": "Non-compliance finding",
-    "required_remediations": "Required remediations",
+    "required_remediations": "Required changes",
 }
 
 STATUS_BANNERS: Mapping[str, str | None] = {
     "compliant": None,
-    "qualified": "Status: qualified — deliverable once the points below are resolved.",
-    "suspended": "Status: suspended — the issues found prevent delivery.",
+    "qualified": "Status: conditional — ready to deliver once the issues below are resolved.",
+    "suspended": "Status: suspended — the issues found block delivery.",
 }
 
 
@@ -126,7 +126,7 @@ def _section_body(
 ) -> str:
     """Body of a section, specialized when the template requires it."""
     if identifier == "reservations":
-        return _bullets(violations) or "- no reservation stated"
+        return _bullets(violations) or "- no caveats recorded"
     if identifier == "artifact" and response_format == "code":
         return "```\n" + str(role or "artifact to produce").strip() + "\n```"
     if identifier == "checkpoints" and response_format == "checklist":
@@ -197,7 +197,7 @@ def generate_output(plan: Any) -> str:
     # 2. Suspended status — the finding replaces the deliverable.
     if status == "suspended":
         blocks = ["# Non-compliance finding", STATUS_BANNERS["suspended"]]
-        blocks.append("Assembly was interrupted: delivering as is would hide the issue found.")
+        blocks.append("Assembly stopped: delivering as is would hide the problem.")
         blocks.append("**Rules broken**\n" + (_bullets(violations) or "- no rule named"))
         for section in sections:
             if section.get("id") == "required_remediations":
@@ -230,7 +230,7 @@ def generate_output(plan: Any) -> str:
             "## "
             + _label("reservations")
             + "\n"
-            + (_bullets(violations) or "- no reservation stated")
+            + (_bullets(violations) or "- no caveats recorded")
         )
 
     # 6. Closing — notices, scope boundary, tensions.
@@ -279,52 +279,52 @@ SUBJECT_LABEL: Mapping[str, str] = {
     "client": "the client relationship",
     "team": "the internal organization",
     "system": "the technical system",
-    "self": "a personal scope",
+    "self": "a personal matter",
 }
 
 # The quoted focus outranks the inferred category: "ticket handling delays"
 # says what "the client relationship" never will.
 DIRECTION_LABEL: Mapping[str, str] = {
-    "decrease": "targeted decrease",
-    "increase": "targeted increase",
+    "decrease": "decrease",
+    "increase": "increase",
 }
-MEASURE_ACTION: str = "Set the target value and its measurement date."
+MEASURE_ACTION: str = "Set the target value and the date it will be measured."
 
 DESTINATION: Mapping[str, str] = {
     "client": "external client",
     "team": "internal team",
     "system": "technical system",
-    "self": "internal use",
-    "undetermined": "recipient not identified",
+    "self": "personal use",
+    "undetermined": "not identified",
 }
 
 STAKE: Mapping[str, str] = {
-    "in_depth": "Stake: establish the causes, not describe the symptoms.",
-    "condensed": "Stake: decide — reduce without impoverishing.",
-    "standard": "Stake: conclude without exceeding what is needed.",
+    "in_depth": "What matters: find the causes, not just describe the symptoms.",
+    "condensed": "What matters: make the call, and cut without losing substance.",
+    "standard": "What matters: reach a conclusion without going further than needed.",
 }
 
 DECISION: Mapping[str, str] = {
-    "analyze": "Decision expected: validate the scope of the diagnosis.",
-    "plan": "Decision expected: settle the success criterion.",
-    "produce": "Decision expected: validate the direction before production.",
-    "summarize": "Decision expected: confirm what can be set aside.",
-    "explain": "Decision expected: confirm the target reading level.",
-    "decide": "Decision expected: settle the options to compare.",
-    "verify": "Decision expected: set the compliance threshold.",
-    "answer": "Decision expected: validate the direction before production.",
+    "analyze": "Decision needed: confirm the scope of the diagnosis.",
+    "plan": "Decision needed: agree on what success looks like.",
+    "produce": "Decision needed: approve the direction before production starts.",
+    "summarize": "Decision needed: confirm what can be left out.",
+    "explain": "Decision needed: confirm the reading level to aim for.",
+    "decide": "Decision needed: agree on the options to compare.",
+    "verify": "Decision needed: set the pass threshold.",
+    "answer": "Decision needed: approve the direction before production starts.",
 }
 
 # Approach announced in the summary — an executive reading of the capabilities.
 CAPABILITY_APPROACH: Mapping[str, str] = {
-    "analysis": "establishing the causes",
-    "synthesis": "reduction to the supporting points",
-    "action_planning": "sequencing the execution",
-    "formatting": "ranking the content",
+    "analysis": "root-cause analysis",
+    "synthesis": "distilling the key points",
+    "action_planning": "sequencing the work",
+    "formatting": "prioritizing the content",
     "summary": "condensing",
-    "deep_dive": "substantiating the conclusions",
-    "client_care": "calibration for an external reader",
-    "executive_framing": "conclusion up front",
+    "deep_dive": "backing every conclusion",
+    "client_care": "writing for an external reader",
+    "executive_framing": "leading with the conclusion",
     "verification": "review before delivery",
 }
 MAX_APPROACHES: int = 3
@@ -334,7 +334,7 @@ TARGET_LABEL: Mapping[str, str] = {
     "team": "an internal team",
     "system": "a technical system",
     "self": "personal use",
-    "undetermined": "an unidentified recipient",
+    "undetermined": "not identified",
 }
 
 DEPTH_LABEL: Mapping[str, str] = {
@@ -344,126 +344,125 @@ DEPTH_LABEL: Mapping[str, str] = {
 }
 
 CONSTRAINT_LABEL: Mapping[str, str] = {
-    "brevity": "brevity required",
+    "brevity": "brevity",
     "speed": "tight deadline",
-    "precision": "precision required",
-    "restricted_scope": "explicitly bounded scope",
-    "no_implementation": "structural output, no logic",
-    "imposed_format": "imposed formatting",
-    "language": "imposed output language",
-    "max-bullets": "bounded number of bullets",
-    "word-limit": "bounded length",
+    "precision": "precision",
+    "restricted_scope": "narrow scope",
+    "no_implementation": "structure only, no logic",
+    "imposed_format": "required format",
+    "language": "required language",
+    "max-bullets": "bullet limit",
+    "word-limit": "length limit",
 }
 
 # ----------------------------------------------------------------------
 # Analysis — observation, implication, impact.
 # ----------------------------------------------------------------------
 IMPLICATION_BY_TARGET: Mapping[str, str] = {
-    "client": "An external recipient requires a self-contained message, with no "
-    "unexplained internal term.",
-    "team": "An internal recipient requires naming who answers for what.",
-    "system": "A technical object requires the exact term, never a paraphrase.",
-    "self": "Internal use allows maximum density and no formatting.",
-    "undetermined": "With the recipient not established, the register remains to "
-    "be confirmed before circulation.",
+    "client": "An external reader needs a self-contained message with no unexplained "
+    "internal terms.",
+    "team": "An internal audience needs clear ownership: who is responsible for what.",
+    "system": "A technical subject calls for exact terms, never paraphrase.",
+    "self": "For personal use, maximum density and minimal formatting are fine.",
+    "undetermined": "The audience is not identified, so the register must be confirmed "
+    "before sharing.",
 }
 
 IMPLICATION_BY_DEPTH: Mapping[str, str] = {
-    "in_depth": "The expected depth addresses mechanisms, not their manifestations.",
-    "condensed": "The expected brevity requires a trade-off: what is set aside "
-    "weighs as much as what remains.",
-    "standard": "The expected level remains what is needed, with no surplus development.",
+    "in_depth": "The requested depth means explaining mechanisms, not just their effects.",
+    "condensed": "Brevity forces trade-offs: what is left out matters as much as what stays.",
+    "standard": "The expected level is what is needed, and no more.",
 }
 
 IMPACT_BY_FORMAT: Mapping[str, str] = {
-    "bullet_points": "The selected container requires one idea per bullet.",
-    "paragraph": "The selected container requires one continuous thread.",
-    "executive_summary": "The selected container requires the conclusion up front.",
-    "action_plan": "The selected container requires steps executable as written.",
-    "table": "The selected container requires axes fixed before filling in.",
-    "email": "The selected container requires the subject in the first line.",
-    "brief": "The selected container requires one page, no appendix.",
+    "bullet_points": "The format calls for one idea per bullet.",
+    "paragraph": "The format calls for one continuous line of argument.",
+    "executive_summary": "The format calls for the conclusion first.",
+    "action_plan": "The format calls for steps that can be executed as written.",
+    "table": "The format calls for axes defined before the table is filled in.",
+    "email": "The format calls for the subject in the first line.",
+    "brief": "The format calls for a single page, with no appendix.",
 }
 
 IMPACT_BY_TONE: Mapping[str, str] = {
-    "executive": "The executive register excludes technical detail and hedging.",
-    "technical": "The technical register excludes unrequested simplification.",
-    "educational": "The educational register requires defining every term introduced.",
-    "direct": "The direct register excludes preambles and set phrases.",
-    "neutral": "The neutral register excludes familiarity as well as solemnity.",
+    "executive": "An executive register rules out technical detail and hedging.",
+    "technical": "A technical register rules out unrequested simplification.",
+    "educational": "An educational register means defining every term introduced.",
+    "direct": "A direct register rules out preambles and stock phrases.",
+    "neutral": "A neutral register avoids both familiarity and formality.",
 }
 
 # ----------------------------------------------------------------------
 # Recommendations — imperative, measurable, outcome-oriented.
 #
-# Form: an action verb first, then a verification criterion after a colon. A
-# recommendation without a criterion can be noted, not checked.
+# Form: an action verb first, then a check after a colon. A recommendation
+# without a check can be noted, not verified.
 # ----------------------------------------------------------------------
 CAPABILITY_ACTION: Mapping[str, str] = {
-    "analysis": "Establish the causes before any proposal: no recommendation "
+    "analysis": "Establish the causes before proposing anything: no recommendation "
     "without an identified cause.",
-    "synthesis": "Reduce the message to its supporting points: five at most.",
-    "action_planning": "Sequence the steps and name their dependencies: no step "
-    "without an explicit prerequisite.",
-    "formatting": "Rank the content: the essentials readable on first pass.",
-    "summary": "Remove every statement that carries no information.",
-    "deep_dive": "Substantiate every conclusion: one fact or source per statement.",
-    "client_care": "Calibrate for an external reader: no unexplained internal term.",
-    "executive_framing": "Open with the expected decision, never with the context.",
-    "verification": "Check compliance with the mandate before delivery.",
+    "synthesis": "Boil the message down to its key points: five at most.",
+    "action_planning": "Sequence the steps and name their dependencies: every step has "
+    "an explicit prerequisite.",
+    "formatting": "Prioritize the content: the essentials must be clear on a first read.",
+    "summary": "Cut every statement that carries no information.",
+    "deep_dive": "Back every conclusion: one fact or source per claim.",
+    "client_care": "Write for an external reader: no unexplained internal terms.",
+    "executive_framing": "Open with the decision needed, never with the background.",
+    "verification": "Check the deliverable against the mandate before sending it.",
 }
 
 FORMAT_ACTION: Mapping[str, str] = {
-    "bullet_points": "Keep one idea per bullet: no compound sentence.",
-    "paragraph": "Carry the argument without breaking the thread.",
-    "executive_summary": "Put the conclusion first, the context after.",
-    "action_plan": "Make every step executable as written: owner and deadline named.",
-    "table": "Set the comparison axes before filling in.",
+    "bullet_points": "Keep one idea per bullet: no compound sentences.",
+    "paragraph": "Keep a single line of argument from start to finish.",
+    "executive_summary": "Lead with the conclusion, then give the context.",
+    "action_plan": "Make every step executable as written: name an owner and a deadline.",
+    "table": "Define the comparison axes before filling in the table.",
     "email": "State the subject in the first line.",
-    "brief": "Fit on one page, no appendix.",
+    "brief": "Fit it on one page, with no appendix.",
 }
 
 CONSTRAINT_ACTION: Mapping[str, str] = {
-    "brevity": "Remove every development that adds nothing.",
-    "speed": "Deliver the useful core rather than a late whole.",
-    "precision": "Tie every statement to its source.",
-    "restricted_scope": "Handle nothing beyond the targeted scope.",
-    "no_implementation": "Stick to the structure, with no logic produced.",
-    "imposed_format": "Follow the requested formatting without interpreting it.",
-    "language": "Deliver in the explicitly requested language.",
-    "max-bullets": "Do not exceed the set number of bullets.",
-    "word-limit": "Do not exceed the set length.",
+    "brevity": "Cut anything that adds nothing.",
+    "speed": "Deliver the useful core now rather than everything late.",
+    "precision": "Tie every claim to its source.",
+    "restricted_scope": "Stay strictly within the requested scope.",
+    "no_implementation": "Stick to structure and produce no logic.",
+    "imposed_format": "Follow the requested format as given.",
+    "language": "Write in the requested language.",
+    "max-bullets": "Stay within the bullet limit.",
+    "word-limit": "Stay within the length limit.",
 }
 
 DEPTH_ACTION: Mapping[str, str] = {
-    "in_depth": "Address the causes, not their manifestations.",
-    "condensed": "Decide: reduce without impoverishing.",
-    "standard": "Keep to what is needed, with no surplus development.",
+    "in_depth": "Address causes, not symptoms.",
+    "condensed": "Make the call: cut without losing substance.",
+    "standard": "Cover what is needed, and no more.",
 }
 
 OBJECTIVE_ACTION: Mapping[str, str] = {
-    "analyze": "Frame the question before opening the analysis.",
-    "plan": "Name the success criterion before sequencing.",
-    "produce": "Check that the deliverable stands on its own, without its author.",
-    "summarize": "Choose what is set aside as carefully as what remains.",
+    "analyze": "Frame the question before starting the analysis.",
+    "plan": "Define success before sequencing the steps.",
+    "produce": "Make sure the deliverable stands on its own, without its author.",
+    "summarize": "Choose what to leave out as carefully as what to keep.",
     "explain": "Start from what the reader knows, not from what the author knows.",
-    "decide": "Expose the discarded options and the reason for the decision.",
-    "verify": "Distinguish blockers from watch points.",
+    "decide": "Show the options that were set aside, and why.",
+    "verify": "Separate blockers from points to watch.",
     "answer": "Answer first, then justify.",
 }
 
 TARGET_ACTION: Mapping[str, str] = {
-    "client": "Remove any unexplained internal jargon.",
-    "team": "Name who answers for what.",
-    "system": "Use the exact technical vocabulary.",
-    "self": "Go to the essentials, with no superfluous formatting.",
-    "undetermined": "Resolve the uncertainty about the recipient before circulation.",
+    "client": "Remove unexplained internal jargon.",
+    "team": "Name who is responsible for what.",
+    "system": "Use the exact technical terms.",
+    "self": "Get to the point and skip unnecessary formatting.",
+    "undetermined": "Confirm who the audience is before sharing.",
 }
 
 BASELINE_ACTIONS: tuple[str, ...] = (
-    "Open with the conclusion, develop afterwards.",
-    "Tie every statement to what it rests on.",
-    "Remove every sentence that carries no information.",
+    "Lead with the conclusion, then build the argument.",
+    "Tie every claim to what supports it.",
+    "Cut every sentence that carries no information.",
 )
 
 
@@ -506,7 +505,7 @@ def _mandate(
     """
     parts = [SHORT_MANDATE[goal] for goal in objectives if goal in SHORT_MANDATE]
     if len(parts) > 1:
-        statement = f"{parts[0]} then {parts[1]}"
+        statement = f"{parts[0]}, then {parts[1]}"
     elif parts:
         statement = parts[0]
     else:
@@ -516,8 +515,8 @@ def _mandate(
     if scope:
         statement = f"{statement} — {scope}"
 
-    recipient = TARGET_LABEL.get(target, "an unidentified recipient")
-    return f"Mandate: {statement}. Recipient: {recipient}."
+    recipient = TARGET_LABEL.get(target, "not identified")
+    return f"Mandate: {statement}. Audience: {recipient}."
 
 
 def _quantified_target(measures: Mapping[str, Any]) -> str:
@@ -532,10 +531,10 @@ def _quantified_target(measures: Mapping[str, Any]) -> str:
     if direction:
         segments.append(direction)
     if measures.get("quantity"):
-        segments.append(f"reference {measures['quantity']}")
+        segments.append(str(measures["quantity"]))
     if measures.get("deadline"):
-        segments.append(f"horizon {measures['deadline']}")
-    return "Target: " + " — ".join(segments) + "." if segments else ""
+        segments.append(f"by {measures['deadline']}")
+    return "Target: " + ", ".join(segments) + "." if segments else ""
 
 
 def _executive_summary(
@@ -563,7 +562,7 @@ def _executive_summary(
     if quantified:
         lines.append(quantified)
     if constraints:
-        lines.append(f"Bounds: {_enumerate(constraints)}.")
+        lines.append(f"Constraints: {_enumerate(constraints)}.")
 
     approaches = [
         CAPABILITY_APPROACH[capability]
@@ -573,7 +572,7 @@ def _executive_summary(
     if approaches:
         lines.append(f"Approach: {_enumerate(approaches)}.")
 
-    decision = DECISION.get(objective, "Decision expected: validate the direction.")
+    decision = DECISION.get(objective, "Decision needed: approve the direction.")
     return "\n".join(lines[: MAX_SUMMARY_LINES - 1] + [decision])
 
 
@@ -596,16 +595,16 @@ def _analysis(
     """
     parts = [SHORT_MANDATE[goal] for goal in objectives if goal in SHORT_MANDATE]
     if len(parts) > 1:
-        head = f"Double mandate — {parts[0]} then {parts[1]}."
+        head = f"Two-part mandate: {parts[0]}, then {parts[1]}."
     else:
-        head = f"Mandate — {parts[0] if parts else 'answer'}."
+        head = f"Mandate: {parts[0] if parts else 'answer'}."
 
     facts = [head]
     scope = _scope(focus, subject, target) or SUBJECT_LABEL.get(subject)
     if scope:
         facts.append(f"Focus: {scope}.")
-    facts.append(f"Recipient: {DESTINATION.get(target, 'not identified')}.")
-    facts.append(f"Depth {DEPTH_LABEL.get(depth, 'standard')}.")
+    facts.append(f"Audience: {DESTINATION.get(target, 'not identified')}.")
+    facts.append(f"Depth: {DEPTH_LABEL.get(depth, 'standard')}.")
     observation = "Observation. " + " ".join(facts)
 
     implication = "Implication. " + " ".join(
@@ -621,7 +620,8 @@ def _analysis(
     ]
     if constraints:
         consequences.append(
-            f"The bounds received — {_enumerate(constraints)} — outrank any formatting preference."
+            f"The stated constraints ({_enumerate(constraints)}) take priority over any "
+            "formatting preference."
         )
     impact = "Impact. " + " ".join(consequences)
 

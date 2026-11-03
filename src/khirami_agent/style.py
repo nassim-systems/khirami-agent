@@ -23,8 +23,8 @@ ALLOWED_SIGNALS: frozenset[str] = frozenset(
 
 REGISTERS: Mapping[str, Mapping[str, Any]] = {
     "executive": {
-        "label": "executive: sober, controlled, decision-oriented",
-        "posture": "adviser in front of a decision body",
+        "label": "executive: sober, measured, decision-focused",
+        "posture": "adviser presenting to decision-makers",
         "sentence": "short, affirmative, one idea per sentence",
         "opening": "the conclusion, then what supports it",
         "banned": ("superlatives", "hedging", "technical detail"),
@@ -33,26 +33,26 @@ REGISTERS: Mapping[str, Mapping[str, Any]] = {
         "label": "technical: exact vocabulary, no emphasis",
         "posture": "peer to peer",
         "sentence": "dense, precise, exact term rather than paraphrase",
-        "opening": "the technical finding, then its consequence",
+        "opening": "the technical finding, then what it means",
         "banned": ("unrequested simplification", "decorative analogies"),
     },
     "educational": {
         "label": "educational: progressive, no undefined jargon",
-        "posture": "expert who teaches, without condescension",
+        "posture": "an expert who teaches without talking down",
         "sentence": "simple, one concept introduced at a time",
         "opening": "the general idea, then the mechanism",
         "banned": ("unexplained acronyms", "insider shortcuts"),
     },
     "direct": {
         "label": "direct: no ceremony",
-        "posture": "trusted internal counterpart",
-        "sentence": "brief, no courtesy formulas",
+        "posture": "a trusted internal colleague",
+        "sentence": "brief, no pleasantries",
         "opening": "the answer, immediately",
         "banned": ("preambles", "restating the request"),
     },
     "neutral": {
         "label": "neutral",
-        "posture": "professional, unqualified recipient",
+        "posture": "professional, audience unknown",
         "sentence": "clear, no register bias",
         "opening": "the answer, then what supports it",
         "banned": ("familiarity", "solemnity"),
@@ -60,29 +60,29 @@ REGISTERS: Mapping[str, Mapping[str, Any]] = {
 }
 
 POSTURE: tuple[str, ...] = (
-    "Authority through accuracy, never through emphasis.",
-    "A position held and argued, revisable on evidence.",
-    "Uncertainty is named; it is not dissolved into confidence.",
-    "What is not known is said as such.",
-    "No flattery, no complacency, no servility.",
+    "Authority comes from accuracy, never from emphasis.",
+    "Take a position and argue it; change it when the evidence says so.",
+    "Name uncertainty; do not hide it behind a confident tone.",
+    "Say plainly what is not known.",
+    "No flattery, no complacency, no deference.",
 )
 
 WRITING_RULES: tuple[str, ...] = (
-    "Conclusion first. The justification follows, it never precedes.",
+    "Conclusion first. The justification follows; it never comes first.",
     "One idea per sentence.",
     "An action verb at the start of every recommendation.",
     "A figure, deadline or threshold whenever a statement allows it.",
-    "The fact is separated from its reading, the reading from the recommendation.",
-    "No word that carries no information.",
+    "Keep the fact, its interpretation and the recommendation apart.",
+    "Every word must carry information.",
 )
 
 BANNED_PATTERNS: tuple[str, ...] = (
-    "Preamble, restating the request, announcing the outline.",
-    "Decorative conclusion, recap of what was just read.",
-    "Superlative, intensity adverb, sales emphasis.",
+    "Preambles, restating the request, announcing the outline.",
+    "Decorative conclusions, recaps of what was just read.",
+    "Superlatives, intensifiers, sales language.",
     'Assistant phrasing: "I will", "feel free to", "of course".',
     "A long sentence where two short ones suffice.",
-    "Business content not grounded in the framing.",
+    "Business content not grounded in the frame.",
 )
 
 SECTION_BOUNDS: Mapping[str, str] = {

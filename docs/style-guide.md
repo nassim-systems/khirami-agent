@@ -64,12 +64,12 @@ The register follows the recipient, never writing comfort.
 Three to five lines. The decision always closes the summary.
 
 ```
-Mandate: {objectives} — {focus}. Recipient: {target}.
-Stake: {what the depth commits to}.
-Target: {direction} — reference {quantity} — horizon {deadline}.   ← conditional
-Bounds: {constraints}.                                            ← conditional
-Approach: {three capabilities at most}.                           ← conditional
-Decision expected: {what must be settled to move on}.
+Mandate: {objectives} — {focus}. Audience: {target}.
+What matters: {what the depth commits to}.
+Target: {direction}, {quantity}, by {deadline}.   ← conditional
+Constraints: {constraints}.                       ← conditional
+Approach: {three capabilities at most}.           ← conditional
+Decision needed: {what must be settled to move on}.
 ```
 
 The focus is quoted, never rephrased. No target value is assumed: direction,
@@ -78,7 +78,7 @@ quantity and deadline appear only if the request states them.
 ### Analysis — observation → implication → impact
 
 ```
-Observation. {Mandate}. Focus: {focus}. Recipient: {target}. Depth {level}.
+Observation. {Mandate}. Focus: {focus}. Audience: {target}. Depth: {level}.
 Implication. {What the recipient and the depth impose on the handling.}
 Impact. {What the container, the register and the bounds impose on the deliverable.}
 ```

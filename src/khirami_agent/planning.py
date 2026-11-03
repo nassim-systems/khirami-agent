@@ -94,21 +94,21 @@ SECTIONS_BY_TEMPLATE: Mapping[str, tuple[tuple[str, str, bool], ...]] = {
         ("decision_points", "where to correct the course", True),
     ),
     "report": (
-        ("executive_summary", "what to decide from the first page", False),
+        ("executive_summary", "what to decide, from page one", False),
         ("context_and_mandate", "origin and scope of the work", False),
         ("method_and_sources", "how the work was conducted", True),
         ("findings", "detailed results", False),
         ("options", "possibilities and the related trade-offs", True),
-        ("recommendation", "argued position, distinct from the findings", False),
+        ("recommendation", "a reasoned position, kept separate from the findings", False),
         ("implementation", "conditions of execution", True),
         ("appendices", "supporting evidence", True),
     ),
     "checklist": (
-        ("scope", "coverage and moment of use", False),
+        ("scope", "what it covers and when to use it", False),
         ("checkpoints", "verifiable items, in order", False),
         ("criteria", "unambiguous validation", False),
-        ("blockers", "blocking versus watch points", True),
-        ("owners", "who answers for what", True),
+        ("blockers", "blockers versus points to watch", True),
+        ("owners", "who is responsible for what", True),
     ),
     "code": (
         ("artifact", "the technical deliverable itself", False),
@@ -116,8 +116,8 @@ SECTIONS_BY_TEMPLATE: Mapping[str, tuple[tuple[str, str, bool], ...]] = {
     ),
     "list": (("items", "homogeneous, ranked items", False),),
     "direct_answer": (
-        ("answer", "the answer, straight away", False),
-        ("support", "what it rests on, if needed", True),
+        ("answer", "the answer, up front", False),
+        ("support", "supporting evidence, if needed", True),
     ),
 }
 OUT_OF_SCOPE_SECTIONS: frozenset[str] = frozenset(
@@ -126,7 +126,7 @@ OUT_OF_SCOPE_SECTIONS: frozenset[str] = frozenset(
 
 TONE_REGISTER: Mapping[str, str] = {
     "technical": "technical: exact vocabulary, no emphasis",
-    "executive": "executive: a deliverable fit to be forwarded",
+    "executive": "executive: ready to forward as is",
     "educational": "educational: progressive, no undefined jargon",
     "direct": "direct: no ceremony",
     "neutral": "neutral",
@@ -138,9 +138,9 @@ DEPTH_REGISTER: Mapping[str, str] = {
 }
 NOTICE_BY_CONSTRAINT: Mapping[str, str] = {
     "precision": "every statement stays tied to its source",
-    "restricted_scope": "handling limited to the requested scope",
+    "restricted_scope": "work limited to the requested scope",
     "no_implementation": "structural output: no functional logic",
-    "brevity": "optional sections dropped for the sake of brevity",
+    "brevity": "optional sections dropped for brevity",
     "language": "output language imposed by the request",
 }
 
@@ -212,7 +212,7 @@ def _select_template(interpretation: Mapping[str, Any]) -> dict[str, Any]:
             0,
             {
                 "id": "open_questions",
-                "role": "what must be settled before any substantive commitment",
+                "role": "what must be settled before real work starts",
                 "optional": False,
             },
         )
@@ -245,9 +245,9 @@ def _apply_plan_rules(plan: Mapping[str, Any]) -> dict[str, Any]:
     sections = [dict(section) for section in (plan.get("sections") or ())]
     template = plan.get("format", "direct_answer")
 
-    scope = "no restriction declared"
+    scope = "no restriction stated"
     if "restricted_scope" in constraints:
-        scope = "scope bounded by the request: nothing beyond what is explicitly targeted"
+        scope = "scope limited to the request: nothing beyond what is explicitly asked"
         capabilities = [c for c in capabilities if c not in EXPANSIVE_CAPABILITIES]
         sections = [s for s in sections if s["id"] not in OUT_OF_SCOPE_SECTIONS]
 
@@ -269,40 +269,42 @@ def _apply_plan_rules(plan: Mapping[str, Any]) -> dict[str, Any]:
         tensions.append("depth and brevity requested together: the trade-off is the user's call")
     if "speed" in constraints and "precision" in constraints:
         tensions.append(
-            "precision required under time pressure: the review holds, the deadline adjusts"
+            "precision required under time pressure: the review stays, the deadline moves"
         )
     if "restricted_scope" in constraints and template == "report":
-        tensions.append("extended deliverable expected on an explicitly narrow mandate")
+        tensions.append("a full report is expected on an explicitly narrow mandate")
     if "no_implementation" in constraints and template == "code":
         tensions.append(
             "technical artifact expected without functional logic: the output will stay structural"
         )
     if interpretation.get("target") == "undetermined":
-        tensions.append("recipient not identified: the register remains to be confirmed")
+        tensions.append("audience not identified: the register still needs confirming")
 
     violations = []
     if not sections:
         violations.append("no section remains after the constraints are applied")
     if "writing" not in capabilities and "production" not in capabilities:
-        violations.append("no delivery capability selected: the deliverable has no carrier")
+        violations.append(
+            "no writing or production capability selected: nothing would produce the deliverable"
+        )
 
     notices = [
         NOTICE_BY_CONSTRAINT[constraint]
         for constraint in sorted(constraints)
         if constraint in NOTICE_BY_CONSTRAINT
     ]
-    notices.append("review applied before delivery")
+    notices.append("reviewed before delivery")
 
     if not sections:
         status = "suspended"
         sections = [
             {
                 "id": "non_compliance_finding",
-                "role": "the constraints received empty the deliverable of substance",
+                "role": "the constraints leave nothing of substance to deliver",
             },
             {
                 "id": "required_remediations",
-                "role": "what must be relaxed to resume",
+                "role": "what must be relaxed to continue",
             },
         ]
     elif violations:
@@ -310,7 +312,7 @@ def _apply_plan_rules(plan: Mapping[str, Any]) -> dict[str, Any]:
         sections = [{"id": s["id"], "role": s["role"]} for s in sections] + [
             {
                 "id": "reservations",
-                "role": "inconsistencies found, to be resolved before delivery",
+                "role": "inconsistencies found, to resolve before delivery",
             }
         ]
     else:
