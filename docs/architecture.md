@@ -88,6 +88,9 @@ three to seven imperative recommendations.
 
 ## 4. Supporting modules
 
+- `anthropic_client.py` — `AnthropicClient`, the optional adapter that
+  implements the model client on the Anthropic Messages API (see
+  [ADR 0006](adr/0006-anthropic-adapter.md)).
 - `prompts.py` — the system prompt and the six task prompts, each with the
   exact JSON schema it expects. Placeholders use `<<name>>`, so the JSON braces
   are never confused with Python formatting.

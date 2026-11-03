@@ -21,5 +21,5 @@ Without a client, each stage returns its empty contract and records
 
 - Zero runtime dependencies; tests use a stub that returns canned JSON.
 - Any provider can be plugged in with a few lines of code.
-- No provider adapter ships yet, so a real engagement requires the caller to
-  write one.
+- Provider adapters live outside the core. The first one, `AnthropicClient`,
+  is described in [0006](0006-anthropic-adapter.md).

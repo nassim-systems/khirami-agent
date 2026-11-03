@@ -10,9 +10,11 @@ Public API
     render_output()       render a consulting deliverable
     run_engagement()      run the model-backed consulting pipeline
     KhiramiAgent          single entry point over the two deterministic stacks
+    AnthropicClient       model client for run_engagement() (optional extra)
 """
 
 from .agent import KhiramiAgent, KhiramiRouter
+from .anthropic_client import AnthropicClient
 from .constraints import detect_language, extract_constraints
 from .engagement import EngagementMeta, EngagementState, run_engagement
 from .framing import interpret
@@ -29,6 +31,7 @@ from .selection import (
 __version__ = "0.1.0"
 
 __all__ = [
+    "AnthropicClient",
     "EngagementMeta",
     "EngagementState",
     "KhiramiAgent",
