@@ -245,7 +245,7 @@ model-backed pipeline can produce.
 pytest
 ```
 
-The suite has 318 tests: 317 run offline, with the model replaced by a stub
+The suite has 323 tests: 322 run offline, with the model replaced by a stub
 or a simulated SDK. One live test calls the real API and is skipped unless
 `ANTHROPIC_API_KEY` is set and the SDK is installed. The tests cover:
 
@@ -266,13 +266,6 @@ for every push and pull request.
 - **Lexical framing.** `interpret()` matches keywords. It does not understand
   paraphrases outside its lexicons. Words it does not know are ignored, never
   guessed.
-- **`volumes` is never reported as missing.** `_missing_information()` tests
-  the measures dictionary, which always holds three keys, so this gap never
-  fires even when no quantity is stated.
-- **Accented input in the engagement router.** The router matches its
-  accent-folded sector and mode markers against text that is lower-cased but
-  not accent-folded, so a marker written with accents in the request is
-  missed.
 - **Quantities lose their unit symbol.** "30%" is captured as `"30"`.
 - **Answer quality is not measured.** The tests check contracts, rules and
   the guard, not the business quality of the model's answers.
@@ -283,7 +276,6 @@ for every push and pull request.
 
 ## Roadmap
 
-- Fix the two framing and router defects listed above, with regression tests.
 - Feed `render_output()` from a completed `EngagementState`, so the
   deterministic renderer can format model-produced findings.
 - Wire `constraints.py` into framing for numeric bounds (word and bullet

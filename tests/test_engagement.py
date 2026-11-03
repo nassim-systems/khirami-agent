@@ -708,3 +708,31 @@ def test_no_engineering_vocabulary_in_the_sector_tables():
 
     for term in ("test case", "endpoint", "stack trace", "deploy", "debug"):
         assert term not in tables
+
+
+# ---------------------------------------------------------------------------
+# Router - regression tests on accented input
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("raw_input", "expected_sector"),
+    [
+        ("Une réclamation client à traiter en urgence.", "support"),
+        ("La comptabilité déborde chaque fin de mois.", "administration"),
+    ],
+    ids=["accented-support", "accented-administration"],
+)
+def test_router_matches_accented_markers(raw_input, expected_sector):
+    """Accented spellings used to be missed: the router did not fold accents."""
+    state = EngagementState(raw_input=raw_input)
+    route(state)
+
+    assert state.meta.sector_table == expected_sector
+
+
+def test_router_still_matches_unaccented_markers():
+    state = EngagementState(raw_input="Une reclamation client a traiter en urgence.")
+    route(state)
+
+    assert state.meta.sector_table == "support"

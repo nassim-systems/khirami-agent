@@ -546,3 +546,24 @@ class TestMultilingual:
             assert len(set(values.values())) == 1, (
                 f"field {field!r} diverges across languages: {values!r}"
             )
+
+
+# ---------------------------------------------------------------------------
+# 10. Missing information - regression tests
+# ---------------------------------------------------------------------------
+
+
+class TestMissingVolumes:
+    """`volumes` used to be unreachable: the measures dict always has three keys."""
+
+    def test_missing_quantity_is_reported(self):
+        frame = interpret("Write an action plan for the team on ticket handling delays.")
+
+        assert frame["measures"]["quantity"] == ""
+        assert "volumes" in frame["missing_info"]
+
+    def test_stated_quantity_is_not_reported(self):
+        frame = interpret("Write an action plan for the team to cut ticket delays by 30% by Q3.")
+
+        assert frame["measures"]["quantity"]
+        assert "volumes" not in frame["missing_info"]

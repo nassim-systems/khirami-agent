@@ -312,8 +312,8 @@ def _measures(words: Sequence[str], raw: Sequence[str], language: str) -> dict[s
 def _missing_information(
     objective: str,
     target: str,
-    focus: Any,
-    measures: Any,
+    focus: str,
+    measures: Mapping[str, str],
     language: str,
     words: Sequence[str],
 ) -> list[str]:
@@ -334,7 +334,7 @@ def _missing_information(
         missing.append("recipient")
     if not focus:
         missing.append("scope")
-    if not measures:
+    if not measures.get("quantity"):
         missing.append("volumes")
     if language == UNDETERMINED_LANGUAGE:
         missing.append("language")

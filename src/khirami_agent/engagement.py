@@ -49,6 +49,7 @@ from .prompts import (
     SYSTEM_PROMPT,
     fill_prompt,
 )
+from .text import fold
 
 ModelClient = Callable[[str, str], str]
 
@@ -235,9 +236,9 @@ class EngagementState:
 # Model call — injected, never built here.
 # ----------------------------------------------------------------------
 def _normalized_words(text: str) -> str:
-    """Lower-case text, punctuation neutralized, bordered by spaces."""
-    lowered = str(text or "").lower()
-    return " " + " ".join("".join(c if c.isalnum() else " " for c in lowered).split()) + " "
+    """Lower-case, accent-folded text, punctuation neutralized, bordered by spaces."""
+    folded = fold(str(text or ""))
+    return " " + " ".join("".join(c if c.isalnum() else " " for c in folded).split()) + " "
 
 
 def _call_model(
