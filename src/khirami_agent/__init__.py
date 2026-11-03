@@ -8,11 +8,13 @@ Public API
     generate_output()     render a plan as Markdown
     run_agent()           assemble frame-driven decisions
     render_output()       render a consulting deliverable
+    run_engagement()      run the model-backed consulting pipeline
     KhiramiAgent          single entry point over the two deterministic stacks
 """
 
 from .agent import KhiramiAgent, KhiramiRouter
 from .constraints import detect_language, extract_constraints
+from .engagement import EngagementMeta, EngagementState, run_engagement
 from .framing import interpret
 from .planning import orchestrate
 from .rendering import generate_output, render_output
@@ -27,6 +29,8 @@ from .selection import (
 __version__ = "0.1.0"
 
 __all__ = [
+    "EngagementMeta",
+    "EngagementState",
     "KhiramiAgent",
     "KhiramiRouter",
     "__version__",
@@ -39,6 +43,7 @@ __all__ = [
     "orchestrate_frame",
     "render_output",
     "run_agent",
+    "run_engagement",
     "select_capabilities",
     "select_format",
 ]
