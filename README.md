@@ -33,38 +33,46 @@ Khirami Agent puts a consulting discipline around the model:
 
 ## Architecture
 
+The consulting engagement runs seven modules after a deterministic router.
+Blue steps are pure Python; orange steps call the model, or can.
+
 ```mermaid
 flowchart TD
-    R[Client request] --> I["interpret()<br/>framing.py"]
+    REQ(["Client request"]) --> RT["Router<br/><small>mode · sector table</small>"]
+    RT --> M1["1 · Intake<br/><small>interpret(): frame, gaps, confidence</small>"]
+    M1 --> M2{"2 · Clarification gate"}
+    M2 -- "not ready" --> Q(["Up to 2 questions<br/>back to the client"])
+    M2 -- ready --> M3["3 · Diagnostic<br/><small>≤ 3 root causes</small>"]
+    M3 --> M4["4 · Process optimization<br/><small>bottlenecks linked to root causes</small>"]
+    M4 --> M5["5 · Automation<br/><small>target flow only · do-not-automate list</small>"]
+    M5 --> M6["6 · Strategy output<br/><small>now / next / later · KPIs · risks</small>"]
+    M6 --> M7["7 · Guard<br/><small>traceability · register · hype · completeness</small>"]
+    M7 -- pass --> OUT(["Consulting deliverable"])
+    M7 -- violation --> FIX["One model correction,<br/>else flagged for human review"]
+    FIX --> OUT
 
-    subgraph ENG ["Consulting engagement — engagement.py (model-backed)"]
-        direction TB
-        RT[Router<br/>mode · sector] --> IN[1. Intake]
-        IN --> G{2. Clarification gate}
-        G -- "not ready" --> Q[Questions to the client]
-        G -- ready --> D[3. Diagnostic]
-        D --> P[4. Process optimization]
-        P --> A[5. Automation]
-        A --> S[6. Strategy output]
-        S --> GU[7. Guard]
-    end
+    classDef det fill:#e8eef7,stroke:#4a6fa5,color:#1b2a41
+    classDef llm fill:#fdf0e1,stroke:#c77d2a,color:#3d2408
+    classDef io fill:#eef5ea,stroke:#5b8a4a,color:#1f3318
+    class RT,M1 det
+    class M2,M3,M4,M5,M6,M7,FIX llm
+    class REQ,Q,OUT io
+```
 
-    subgraph DET ["Deterministic stacks — no model call"]
-        direction TB
-        O["orchestrate()<br/>planning.py"] --> GO["generate_output()<br/>Markdown deliverable plan"]
-        RA["run_agent()<br/>selection.py"] --> RO["render_output()<br/>mandate note"]
-    end
+The execution mode decides which of modules 3 to 7 run (see the mode table
+below). Two deterministic stacks reuse the same framing and never call a
+model:
 
-    R --> RT
-    I --> IN
-    I --> O
-    I --> RA
-    LLM[["Model client<br/>AnthropicClient or any callable"]] -.-> G
-    LLM -.-> D
-    LLM -.-> P
-    LLM -.-> A
-    LLM -.-> S
-    LLM -.-> GU
+```mermaid
+flowchart LR
+    REQ(["Request"]) --> I["interpret()"]
+    I --> O["orchestrate()"] --> GO["generate_output()<br/><small>Markdown deliverable plan</small>"]
+    I --> RA["run_agent()"] --> RO["render_output()<br/><small>mandate note</small>"]
+
+    classDef det fill:#e8eef7,stroke:#4a6fa5,color:#1b2a41
+    classDef io fill:#eef5ea,stroke:#5b8a4a,color:#1f3318
+    class I,O,GO,RA,RO det
+    class REQ io
 ```
 
 `interpret()` is the only function that reads the raw request. Every later
