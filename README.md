@@ -129,6 +129,13 @@ extra installs the official SDK and is only needed to call Claude.
 
 ## Usage
 
+Two runnable scripts live in [`examples/`](examples/):
+
+```bash
+python examples/run_without_model.py   # no key, no network: frame, mandate note, declared gaps
+python examples/run_engagement.py      # full_audit on Claude (needs ANTHROPIC_API_KEY, paid API)
+```
+
 ### Frame a request
 
 ```python
@@ -245,7 +252,7 @@ model-backed pipeline can produce.
 pytest
 ```
 
-The suite has 323 tests: 322 run offline, with the model replaced by a stub
+The suite has 326 tests: 325 run offline, with the model replaced by a stub
 or a simulated SDK. One live test calls the real API and is skipped unless
 `ANTHROPIC_API_KEY` is set and the SDK is installed. The tests cover:
 
@@ -257,6 +264,7 @@ or a simulated SDK. One live test calls the real API and is skipped unless
 - the Anthropic adapter: key handling, model selection, request shape, error
   mapping, code-fence stripping and a full engagement on the simulated SDK,
 - determinism and non-mutation of inputs for the public functions.
+- the two example scripts (smoke tests, no network).
 
 CI runs `ruff check`, `ruff format --check` and `pytest` on Python 3.10–3.13
 for every push and pull request.
