@@ -136,6 +136,8 @@ python examples/run_without_model.py   # no key, no network: frame, mandate note
 python examples/run_engagement.py      # full_audit on Claude (needs ANTHROPIC_API_KEY, paid API)
 ```
 
+The output of a real run is in [`docs/sample-engagement.md`](docs/sample-engagement.md).
+
 ### Frame a request
 
 ```python
