@@ -12,7 +12,8 @@ First version.
 
 - **Request framing** (`interpret()`): objective, subject, recipient, tone,
   depth, constraints, quoted focus, measurable targets, missing information
-  and a three-level confidence. Language detection for English, French,
+  and a three-level confidence. Quantities keep their unit symbol ("30%",
+  "$300"). Language detection for English, French,
   Spanish, Italian and Portuguese that returns `undetermined` instead of
   guessing.
 - **Consulting engagement pipeline** (`run_engagement()`): a deterministic
@@ -41,5 +42,5 @@ First version.
 - **Documentation**: README, architecture notes, style guide, six
   architecture decision records, a real sample engagement and a security
   policy.
-- **Quality**: 326 tests, one of them a live API test skipped without a key,
+- **Quality**: 333 tests, one of them a live API test skipped without a key,
   and a CI workflow running `ruff` and `pytest` on Python 3.10 to 3.13.

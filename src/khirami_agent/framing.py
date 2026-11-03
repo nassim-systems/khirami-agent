@@ -17,6 +17,7 @@ Multilingual
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -70,6 +71,10 @@ UNDETERMINED_LANGUAGE: str = "undetermined"
 LANGUAGE_THRESHOLD: int = 2
 
 FOCUS_MAX_WORDS: int = 8
+
+# Unit symbols kept with a quantity: "30%", "$300", "200 €".
+_PREFIX_SYMBOLS = "$€£"
+_SUFFIX_SYMBOLS = "%€$£"
 
 FRAMING_MIN_WORDS: int = 6
 HIGH_CONFIDENCE_MAX_GAPS: int = 1
@@ -257,7 +262,28 @@ def _focus(words: Sequence[str], raw: Sequence[str], language: str) -> str:
     return " ".join(raw[index] for index in best)
 
 
-def _measures(words: Sequence[str], raw: Sequence[str], language: str) -> dict[str, str]:
+def _with_symbol(text: str, number: str) -> str:
+    """
+    The number as written, with an adjacent unit symbol if there is one.
+
+    Tokenization drops punctuation, so "30%" reaches `_measures()` as "30".
+    The symbol is read back from the raw text, at the first standalone
+    occurrence of that number.
+    """
+    pattern = (
+        rf"([{re.escape(_PREFIX_SYMBOLS)}]?)\s?(?<![\w.,]){re.escape(number)}(?![\w.,]\d)"
+        rf"\s?([{re.escape(_SUFFIX_SYMBOLS)}]?)"
+    )
+    match = re.search(pattern, text)
+    if not match:
+        return number
+    prefix, suffix = match.group(1), match.group(2)
+    return f"{prefix}{number}{suffix}" if not (prefix and suffix) else f"{prefix}{number}"
+
+
+def _measures(
+    words: Sequence[str], raw: Sequence[str], language: str, text: str = ""
+) -> dict[str, str]:
     """
     Measurable markers of the request — direction, quantity, deadline.
 
@@ -278,9 +304,10 @@ def _measures(words: Sequence[str], raw: Sequence[str], language: str) -> dict[s
     def with_unit(index: int) -> str:
         """The number, followed by what it counts — never by a stopword."""
         following = index + 1
+        number = _with_symbol(text, raw[index]) if raw[index].isdigit() else raw[index]
         if following < len(words) and words[following] not in stopwords:
-            return f"{raw[index]} {raw[following]}"
-        return raw[index]
+            return f"{number} {raw[following]}"
+        return number
 
     quantity = ""
     number_words = lexicons.NUMBER_WORDS_BY_LANGUAGE.get(language, lexicons.NUMBER_WORDS_MERGED)
@@ -433,7 +460,7 @@ def interpret(request: str) -> dict[str, Any]:
     )
 
     focus = _focus(words, raw, language)
-    measures = _measures(words, raw, language)
+    measures = _measures(words, raw, language, text)
     missing = _missing_information(
         objective=objective,
         target=target,

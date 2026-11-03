@@ -163,7 +163,7 @@ interpret(
   "objectives": ["analyze", "plan"],
   "subject": "team",
   "focus": "cut response times",
-  "measures": {"direction": "decrease", "quantity": "30", "deadline": "Q3"},
+  "measures": {"direction": "decrease", "quantity": "30%", "deadline": "Q3"},
   "target": "team",
   "tone": "direct",
   "depth": "standard",
@@ -240,7 +240,7 @@ The second call returns:
 
 ```json
 {
-  "executive_summary": "Mandate: diagnosis, then action plan — cut response times. Audience: an internal team.\nWhat matters: reach a conclusion without going further than needed.\nTarget: decrease, 30, by Q3.\nApproach: root-cause analysis, sequencing the work, prioritizing the content.\nDecision needed: agree on what success looks like.",
+  "executive_summary": "Mandate: diagnosis, then action plan — cut response times. Audience: an internal team.\nWhat matters: reach a conclusion without going further than needed.\nTarget: decrease, 30%, by Q3.\nApproach: root-cause analysis, sequencing the work, prioritizing the content.\nDecision needed: agree on what success looks like.",
   "analysis": "Observation. Two-part mandate: diagnosis, then action plan. Focus: cut response times. Audience: internal team. Depth: standard.\n...",
   "recommendations": [
     "Establish the causes before proposing anything: no recommendation without an identified cause.",
@@ -262,7 +262,7 @@ model-backed pipeline can produce.
 pytest
 ```
 
-The suite has 326 tests: 325 run offline, with the model replaced by a stub
+The suite has 333 tests: 332 run offline, with the model replaced by a stub
 or a simulated SDK. One live test calls the real API and is skipped unless
 `ANTHROPIC_API_KEY` is set and the SDK is installed. The tests cover:
 
@@ -284,7 +284,6 @@ for every push and pull request.
 - **Lexical framing.** `interpret()` matches keywords. It does not understand
   paraphrases outside its lexicons. Words it does not know are ignored, never
   guessed.
-- **Quantities lose their unit symbol.** "30%" is captured as `"30"`.
 - **Answer quality is not measured.** The tests check contracts, rules and
   the guard, not the business quality of the model's answers.
 - **Two modules are not wired in.** `constraints.py` and `style.py` are tested

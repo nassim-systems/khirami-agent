@@ -567,3 +567,27 @@ class TestMissingVolumes:
 
         assert frame["measures"]["quantity"]
         assert "volumes" not in frame["missing_info"]
+
+
+class TestQuantityUnits:
+    """Unit symbols used to be dropped by tokenization: "30%" became "30"."""
+
+    @pytest.mark.parametrize(
+        ("request_text", "expected"),
+        [
+            ("Cut response times by 30% before Q3.", "30%"),
+            ("Reduce churn by 15 % by June.", "15%"),
+            ("Keep a budget of 200€ for Q3.", "200€"),
+            ("Spend $300 on tooling.", "$300"),
+            ("Reduce delays by 30 before Q3.", "30"),
+            ("Answer in under 100 words.", "100 words"),
+        ],
+        ids=["percent", "spaced-percent", "euro-suffix", "dollar-prefix", "no-symbol", "unit-word"],
+    )
+    def test_quantity_keeps_its_unit(self, request_text, expected):
+        assert interpret(request_text)["measures"]["quantity"] == expected
+
+    def test_symbol_is_read_from_the_same_number(self):
+        frame = interpret("We have 2 agents and 30% growth.")
+
+        assert frame["measures"]["quantity"] == "2 agents"
