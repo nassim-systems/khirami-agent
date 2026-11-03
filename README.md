@@ -300,6 +300,11 @@ for every push and pull request.
   limits).
 - A command-line entry point.
 
+## Security
+
+To report a vulnerability, or to read the rules on API keys, see
+[SECURITY.md](SECURITY.md).
+
 ## License
 
 Copyright (c) 2026 nassim-systems. All rights reserved. This is proprietary
